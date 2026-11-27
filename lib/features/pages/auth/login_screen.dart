@@ -32,7 +32,9 @@ class _LoginScreenState extends State<LoginScreen> {
     });
 
     try {
-
+      await Apis.auth.signInWithEmailAndPassword(
+          email: email1.trim(), password: pass1);
+      if (!mounted) return;
       Navigator.pushAndRemoveUntil(
         context,
         MaterialPageRoute(
@@ -51,13 +53,13 @@ class _LoginScreenState extends State<LoginScreen> {
       setState(() {
         isLoading = false;
       });
+      if (!mounted) return;
       if (e.code == 'user-not-found') {
         Dialogues.errorDialogue(context, "User not found");
-      } else if (e.code == 'wrong-password') {
-        setState(() {
-          isLoading = false;
-        });
-        Dialogues.errorDialogue(context, "Password Wrong");
+      } else if (e.code == 'wrong-password' || e.code == 'invalid-credential') {
+        Dialogues.errorDialogue(context, "Wrong email or password");
+      } else {
+        Dialogues.errorDialogue(context, e.message ?? e.code);
       }
     }
     // } else {}
