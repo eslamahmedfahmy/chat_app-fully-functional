@@ -25,7 +25,6 @@ class _UserProfileState extends State<UserProfile> {
 
     return GestureDetector(
       onTap: () {
-        print("unfocus");
         FocusScope.of(context).unfocus();
       },
       child: Scaffold(
@@ -38,7 +37,6 @@ class _UserProfileState extends State<UserProfile> {
             // Apis.auth =
 
             // FirebaseAuth.instance.signOut();
-            print("Logout");
             await Apis.updateActiveStatus(false);
             Apis.ProgressIndicator(context);
             FirebaseAuth.instance.signOut();
@@ -187,7 +185,6 @@ class _UserProfileState extends State<UserProfile> {
                     onPressed: () {
                       if (_formkey.currentState!.validate()) {
                         _formkey.currentState!.save();
-                        print("enter");
                         Apis.updateUserProfile().then((value) {
                           Dialogues.successDialogue(
                               context, "Updated Successfully");
@@ -261,7 +258,6 @@ class _UserProfileState extends State<UserProfile> {
                         final XFile? image =
                         await picker.pickImage(source: ImageSource.gallery);
                         if (image != null) {
-                          print(image.path);
                           setState(() {});
                           getImage = image.path;
                           Navigator.pop(context);
@@ -288,7 +284,6 @@ class _UserProfileState extends State<UserProfile> {
                         final XFile? image =
                         await picker.pickImage(source: ImageSource.camera);
                         if (image != null) {
-                          print(image.path);
                           setState(() {});
                           getImage = image.path;
                           Navigator.pop(context);

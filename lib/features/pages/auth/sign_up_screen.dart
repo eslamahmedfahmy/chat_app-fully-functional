@@ -28,7 +28,6 @@ class _SignUPScreenState extends State<SignUPScreen> {
     if (isValid) {
       registerUser();
     } else {
-      print("field empty");
     }
   }
 
@@ -41,8 +40,6 @@ class _SignUPScreenState extends State<SignUPScreen> {
           .createUserWithEmailAndPassword(
           email: email.text, password: password.text)
           .then((value) {
-        print(
-            "signp user id ===>>>>>${FirebaseAuth.instance.currentUser!.uid}");
 
         setState(() {
           isLoading = false;
@@ -70,10 +67,8 @@ class _SignUPScreenState extends State<SignUPScreen> {
         });
         Dialogues.errorDialogue(
             context, "The account already exists for that email");
-        print('The account already exists for that email.');
       }
     } catch (e) {
-      print(e);
     }
   }
 
@@ -88,6 +83,15 @@ class _SignUPScreenState extends State<SignUPScreen> {
     } else {
       return null;
     }
+  }
+
+  @override
+  void dispose() {
+    email.dispose();
+    password.dispose();
+    username.dispose();
+    phone.dispose();
+    super.dispose();
   }
 
   @override

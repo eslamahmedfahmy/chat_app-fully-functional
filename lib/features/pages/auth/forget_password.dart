@@ -16,21 +16,15 @@ class _ForgotScreenState extends State<ForgotScreen> {
   var emailcontroller = TextEditingController();
 
   Future resetPassword() async {
-    print("check");
     try {
-      print("try");
       await FirebaseAuth.instance
           .sendPasswordResetEmail(email: emailcontroller.text);
-      print(emailcontroller.text);
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(
         content: Text("Password sent to that email"),
         backgroundColor: Colors.green,
         behavior: SnackBarBehavior.floating,
       ));
     } on FirebaseAuthException catch (e) {
-      print("exception===>");
-      print(e);
-      print("No user found for taht email");
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(
         content: Text("No user found for that email"),
         backgroundColor: Colors.red.shade400,
@@ -41,9 +35,8 @@ class _ForgotScreenState extends State<ForgotScreen> {
 
   @override
   void dispose() {
-    // TODO: implement dispose
+    emailcontroller.dispose();
     super.dispose();
-    emailcontroller.clear();
   }
 
   @override

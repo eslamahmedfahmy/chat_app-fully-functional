@@ -4,7 +4,7 @@ import 'package:chat_app_fully_functional/features/pages/user/user_profile.dart'
 import 'package:chat_app_fully_functional/models/models.dart';
 import 'package:chat_app_fully_functional/utils/dialoges.dart';
 import 'package:chat_app_fully_functional/widgets/chat_user_card.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:cloud_firestore/cloud_firestore.dart' hide Type;
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -50,15 +50,13 @@ class _HomePageState extends State<HomePage> {
       onTap: () {
         FocusScope.of(context).unfocus();
       },
-      child: WillPopScope(
-        onWillPop: () {
-          if (search) {
+      child: PopScope(
+        canPop: !search,
+        onPopInvokedWithResult: (didPop, result) {
+          if (!didPop && search) {
             setState(() {
-              search = !search;
+              search = false;
             });
-            return Future.value(false);
-          } else {
-            return Future.value(true);
           }
         },
         child: Scaffold(
@@ -121,7 +119,6 @@ class _HomePageState extends State<HomePage> {
             actions: [
               IconButton(
                 onPressed: () {
-                  print("call search");
                   search = !search;
                   setState(() {});
                 },

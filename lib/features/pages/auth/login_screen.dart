@@ -32,7 +32,9 @@ class _LoginScreenState extends State<LoginScreen> {
     });
 
     try {
-
+      await Apis.auth.signInWithEmailAndPassword(
+          email: email1.trim(), password: pass1);
+      if (!mounted) return;
       Navigator.pushAndRemoveUntil(
         context,
         MaterialPageRoute(
@@ -51,13 +53,13 @@ class _LoginScreenState extends State<LoginScreen> {
       setState(() {
         isLoading = false;
       });
+      if (!mounted) return;
       if (e.code == 'user-not-found') {
         Dialogues.errorDialogue(context, "User not found");
-      } else if (e.code == 'wrong-password') {
-        setState(() {
-          isLoading = false;
-        });
-        Dialogues.errorDialogue(context, "Password Wrong");
+      } else if (e.code == 'wrong-password' || e.code == 'invalid-credential') {
+        Dialogues.errorDialogue(context, "Wrong email or password");
+      } else {
+        Dialogues.errorDialogue(context, e.message ?? e.code);
       }
     }
     // } else {}
@@ -103,7 +105,6 @@ class _LoginScreenState extends State<LoginScreen> {
     super.initState();
     // checkIfLogin();
     EasyLoading.addStatusCallback((status) {
-      print('EasyLoading Status $status');
       if (status == EasyLoadingStatus.dismiss) {
         _timer?.cancel();
       }
@@ -118,32 +119,39 @@ class _LoginScreenState extends State<LoginScreen> {
 
       log(user.user.toString());
 
-      print(user.credential!.token);
-      print(user.credential!.token);
-      print(user.additionalUserInfo);
     }).onError((error, stackTrace) {
-      print("Error");
       EasyLoading.showError(error.toString());
     });
   }
 
-  Future<UserCredential> signInWithGoogle() async {
-    // Trigger the authentication flow
-    final GoogleSignInAccount? googleUser = await GoogleSignIn().signIn();
+  static bool _googleSignInReady = false;
 
-    // Obtain the auth details from the request
-    final GoogleSignInAuthentication? googleAuth =
-    await googleUser?.authentication;
+  Future<UserCredential> signInWithGoogle() async {
+    // google_sign_in 7.x: initialize once, then authenticate
+    final googleSignIn = GoogleSignIn.instance;
+    if (!_googleSignInReady) {
+      await googleSignIn.initialize();
+      _googleSignInReady = true;
+    }
+    final GoogleSignInAccount googleUser = await googleSignIn.authenticate();
+
+    // Obtain the auth details from the request (v7 only returns an idToken)
+    final GoogleSignInAuthentication googleAuth = googleUser.authentication;
 
     // Create a new credential
     final credential = GoogleAuthProvider.credential(
-      accessToken: googleAuth?.accessToken,
-      idToken: googleAuth?.idToken,
+      idToken: googleAuth.idToken,
     );
-    print("google credentials==>" + credential.toString());
 
     // Once signed in, return the UserCredential
     return await Apis.auth.signInWithCredential(credential);
+  }
+
+  @override
+  void dispose() {
+    email.dispose();
+    password.dispose();
+    super.dispose();
   }
 
   @override
@@ -307,7 +315,6 @@ class _LoginScreenState extends State<LoginScreen> {
                           children: [
                             InkWell(
                               onTap: () {
-                                print("Sign in google");
                                 signInWithGoogle();
                               },
                               child: SizedBox(
