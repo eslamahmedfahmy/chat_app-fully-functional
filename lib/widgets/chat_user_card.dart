@@ -4,7 +4,7 @@ import 'package:chat_app_fully_functional/features/pages/chat_screen/chat_screen
 import 'package:chat_app_fully_functional/models/message.dart';
 import 'package:chat_app_fully_functional/models/models.dart';
 import 'package:chat_app_fully_functional/utils/date_time.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:cloud_firestore/cloud_firestore.dart' hide Type;
 import 'package:flutter/material.dart';
 
 
@@ -50,7 +50,6 @@ class _ChatUserCardState extends State<ChatUserCard> {
                 data?.map((e) => Message.fromJson(e.data())).toList() ?? [];
 
             if (list.isNotEmpty) {
-              print("Enter in to not list null");
               _message = list[0];
             }
             ;

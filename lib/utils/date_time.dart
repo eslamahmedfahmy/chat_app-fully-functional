@@ -10,7 +10,6 @@ class MyDateUtil {
     // Input string contains non-numeric characters
     ///changes the data
 
-    print("=========>>>>Print input=>${time}");
     if (time.isEmpty) {
       return "";
     } else {
@@ -25,10 +24,7 @@ class MyDateUtil {
       {required BuildContext context,
         required String time,
         bool showYear = false}) {
-    print(time);
     final DateTime sent = DateTime.fromMillisecondsSinceEpoch(int.parse(time));
-    print("send month ${sent.month}");
-    print("send year ${sent.year}");
     final DateTime now = DateTime.now();
 
     if (now.day == sent.day &&

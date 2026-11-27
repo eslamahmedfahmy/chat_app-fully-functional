@@ -5,8 +5,9 @@ import 'package:chat_app_fully_functional/models/message.dart';
 import 'package:chat_app_fully_functional/utils/date_time.dart';
 import 'package:chat_app_fully_functional/utils/dialoges.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_cache_manager/flutter_cache_manager.dart';
 import 'package:flutter/services.dart';
-import 'package:gallery_saver/gallery_saver.dart';
+import 'package:saver_gallery/saver_gallery.dart';
 
 class MessageCard extends StatefulWidget {
   final Message msg;
@@ -121,7 +122,6 @@ class _MessageCardState extends State<MessageCard> {
   Widget blueMsg() {
     if (widget.msg.read!.isEmpty) {
       Apis.updateMessageReadStatus(widget.msg);
-      print("msg read update");
     }
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -183,9 +183,9 @@ class _MessageCardState extends State<MessageCard> {
               child: CachedNetworkImage(
                 height: 50,
                 width: 50,
-                imageUrl: widget.msg == ""
+                imageUrl: (widget.msg.msg == null || widget.msg.msg!.isEmpty)
                     ? "https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460__340.png"
-                    : widget.msg.toString(),
+                    : widget.msg.msg!,
                 placeholder: (context, url) =>
                     CircularProgressIndicator(),
                 errorWidget: (context, url, error) =>
@@ -257,7 +257,7 @@ class _MessageCardState extends State<MessageCard> {
                   name: 'Copy Text',
                   onTap: () async {
                     await Clipboard.setData(
-                        ClipboardData(text: widget.msg.msg))
+                        ClipboardData(text: widget.msg.msg ?? ''))
                         .then((value) {
                       //for hiding bottom sheet
                       Navigator.pop(context);
@@ -273,20 +273,24 @@ class _MessageCardState extends State<MessageCard> {
                   name: 'Save Image',
                   onTap: () async {
                     try {
-                      print("enter into try");
                       log('Image Url: ${widget.msg.msg}');
-                      await GallerySaver.saveImage(widget.msg.msg!,
-                          albumName: 'Chit Chat')
-                          .then((success) {
-                        //for hiding bottom sheet
-                        Navigator.pop(context);
-                        if (success != null && success) {
-                          Dialogues.successDialogue(
-                              context, 'Image Successfully Saved!');
-                        }
-                      });
+                      final file = await DefaultCacheManager()
+                          .getSingleFile(widget.msg.msg!);
+                      final result = await SaverGallery.saveImage(
+                        await file.readAsBytes(),
+                        fileName:
+                            'chit_chat_${DateTime.now().millisecondsSinceEpoch}.jpg',
+                        albumPath: 'Pictures/Chit Chat',
+                        skipIfExists: false,
+                      );
+                      if (!mounted) return;
+                      //for hiding bottom sheet
+                      Navigator.pop(context);
+                      if (result.isSuccess) {
+                        Dialogues.successDialogue(
+                            context, 'Image Successfully Saved!');
+                      }
                     } catch (e) {
-                      print("enter into catch");
 
                       log('ErrorWhileSavingImg: $e');
                     }

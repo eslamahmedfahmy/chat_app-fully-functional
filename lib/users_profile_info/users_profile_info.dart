@@ -26,7 +26,6 @@ class _UsersProfileScreenState extends State<UsersProfileScreen> {
 
     return GestureDetector(
       onTap: () {
-        print("unfocus");
         FocusScope.of(context).unfocus();
       },
       child: Scaffold(

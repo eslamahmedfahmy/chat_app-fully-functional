@@ -6,7 +6,7 @@ import 'package:chat_app_fully_functional/models/models.dart';
 import 'package:chat_app_fully_functional/users_profile_info/users_profile_info.dart';
 import 'package:chat_app_fully_functional/utils/date_time.dart';
 import 'package:chat_app_fully_functional/widgets/message_card.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:cloud_firestore/cloud_firestore.dart' hide Type;
 import 'package:emoji_picker_flutter/emoji_picker_flutter.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
@@ -31,16 +31,20 @@ class _ChatScreenState extends State<ChatScreen> {
 
   final _textController = TextEditingController();
   @override
+  void dispose() {
+    _textController.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
-    return WillPopScope(
-      onWillPop: () {
-        if (showEmoji) {
+    return PopScope(
+      canPop: !showEmoji,
+      onPopInvokedWithResult: (didPop, result) {
+        if (!didPop && showEmoji) {
           setState(() {
-            showEmoji = !showEmoji;
+            showEmoji = false;
           });
-          return Future.value(false);
-        } else {
-          return Future.value(true);
         }
       },
       child: GestureDetector(
@@ -125,8 +129,10 @@ class _ChatScreenState extends State<ChatScreen> {
                       child: EmojiPicker(
                         textEditingController: _textController,
                         config: Config(
-                          columns: 8,
-                          emojiSizeMax: 32 * (Platform.isIOS ? 1.30 : 1.0),
+                          emojiViewConfig: EmojiViewConfig(
+                            columns: 8,
+                            emojiSizeMax: 32 * (Platform.isIOS ? 1.30 : 1.0),
+                          ),
                         ),
                       ),
                     )
@@ -216,7 +222,6 @@ class _ChatScreenState extends State<ChatScreen> {
                       final XFile? image = await picker.pickImage(
                           source: ImageSource.camera, imageQuality: 80);
                       if (image != null) {
-                        print(image.path);
                         setState(() {
                           _isUploading = true;
                         });

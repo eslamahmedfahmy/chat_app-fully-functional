@@ -19,7 +19,7 @@ void main() async {
   ));
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp();
-  var result = await FlutterNotificationChannel.registerNotificationChannel(
+  var result = await FlutterNotificationChannel().registerNotificationChannel(
       description: 'For Showing Message Notification',
       id: 'chats',
       importance: NotificationImportance.IMPORTANCE_HIGH,
